@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 namespace CoffeeShop.Controllers
 {
     [Route("api/[controller]")]
+    //Data Annotation
     [ApiController]
     public class CoffeesController : ControllerBase
     {
@@ -30,7 +31,7 @@ namespace CoffeeShop.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Coffee>> Get([FromQuery] string beanType, [FromQuery] string sortBy)
+        public ActionResult<List<Coffee>> Get([FromQuery] string beanType)
         {
             using (SqlConnection conn = Connection)
             {
@@ -39,22 +40,15 @@ namespace CoffeeShop.Controllers
                     beanType = "";
                 }
 
-                if (sortBy == null || sortBy.ToLower() != "beantype")
-                {
-                    sortBy = "id";
-                }
-
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
                         SELECT Id, Title, BeanType 
-                        FROM Coffee 
-                        WHERE BeanType LIKE '%' + @beanType + '%'
-                        ORDER BY @sorted";
+                        FROM Coffee
+                        WHERE BeanType LIKE '%' + @beanType + '%'";
 
                     cmd.Parameters.Add(new SqlParameter("@beanType", beanType));
-                    cmd.Parameters.Add(new SqlParameter("@sorted", sortBy));
                     SqlDataReader reader = cmd.ExecuteReader();
                     List<Coffee> coffees = new List<Coffee>();
 
